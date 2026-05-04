@@ -1,0 +1,10 @@
+{
+  "id": "ordinal-ranking",
+  "name": "Ordinal Ranking",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Rank your markdown lists by pairwise comparison. Run a session to sort the list, or insert new items via binary-search placement.",
+  "author": "You",
+  "authorUrl": "",
+  "isDesktopOnly": false
+}
