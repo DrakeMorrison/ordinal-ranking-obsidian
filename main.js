@@ -9,16 +9,24 @@ function parseItems(content) {
     for (const line of content.split('\n')) {
         const m = line.match(/^[-*+] (.+)$/);
         if (m) {
-            const text = m[1].trim();
+            let text = m[1].trim();
             if (/^\[[xX]\]\s/.test(text)) continue;
-            items.push({ text });
+            let isTask = false;
+            const taskMatch = text.match(/^\[ \]\s+(.+)$/);
+            if (taskMatch) {
+                isTask = true;
+                text = taskMatch[1];
+            }
+            items.push({ text, isTask });
         }
     }
     return items;
 }
 
 function serializeBack(content, sortedItems) {
-    const replacements = sortedItems.map(i => `- ${i.text}`);
+    const replacements = sortedItems.map(i =>
+        i.isTask ? `- [ ] ${i.text}` : `- ${i.text}`
+    );
     let idx = 0;
     return content.replace(/^[-*+] (?!\[[xX]\]\s).+$/gm, () =>
         idx < replacements.length ? replacements[idx++] : ''
@@ -139,7 +147,7 @@ class AddItemModal extends obsidian.Modal {
         super(app);
         this.sorted = [...sortedItems];
         this.onComplete = onComplete;
-        this.newItem = { text: '' };
+        this.newItem = { text: '', isTask: true };
         this.lo = 0;
         this.hi = this.sorted.length - 1;
     }
