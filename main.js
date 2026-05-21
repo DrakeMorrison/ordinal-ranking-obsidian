@@ -27,10 +27,33 @@ function serializeBack(content, sortedItems) {
     const replacements = sortedItems.map(i =>
         i.isTask ? `- [ ] ${i.text}` : `- ${i.text}`
     );
+
+    const lines = content.split('\n');
+    const newLines = [];
+    const doneLines = [];
+    let lastSortedIdx = -1;
     let idx = 0;
-    return content.replace(/^[-*+] (?!\[[xX]\]\s).+$/gm, () =>
-        idx < replacements.length ? replacements[idx++] : ''
-    );
+
+    for (const line of lines) {
+        if (/^[-*+] \[[xX]\]\s/.test(line)) {
+            doneLines.push(line);
+        } else if (/^[-*+] /.test(line)) {
+            if (idx < replacements.length) {
+                newLines.push(replacements[idx++]);
+                lastSortedIdx = newLines.length - 1;
+            }
+        } else {
+            newLines.push(line);
+        }
+    }
+
+    const tail = [...replacements.slice(idx), ...doneLines];
+    if (tail.length > 0) {
+        const insertAt = lastSortedIdx >= 0 ? lastSortedIdx + 1 : newLines.length;
+        newLines.splice(insertAt, 0, ...tail);
+    }
+
+    return newLines.join('\n');
 }
 
 // ── Pairwise ranking session (interactive merge sort) ───────────────────────
